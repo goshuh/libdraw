@@ -18,7 +18,7 @@ class Draw(object):
         self.fig, self.ax = pl.subplots(*a, **kw)
         self.axs  = [self.ax]
         # hack
-        self.ax.int_cnt  = 0
+        self.ax.int_all  = []
         self.ax.int_tick = None
 
     def add(self, misc: ml.Artist):
@@ -30,7 +30,7 @@ class Draw(object):
         d.y     = d.get_value()
         d.label = Misc.identity(d.label, d.get_label())
 
-        self.ax.int_cnt += 1 if d.label else 0
+        self.ax.int_all.append(d)
         self.ax.int_tick = Misc.identity(self.ax.int_tick, d)
 
         if Misc.valid(d.tick):
@@ -57,6 +57,9 @@ class Draw(object):
                                   color     = d.color,
                                   linewidth = d.wid)
 
+        if Misc.valid(d.xticklabels_idx):
+            d.x = list(map(lambda x: [x[d.xticklabels_idx]], d.x))
+
     def draw_2ff(self, _: int, __: int, d: Misc.Wrap) -> None:
         v = d.get_value()
 
@@ -64,7 +67,7 @@ class Draw(object):
         d.y     = np.array(v[1::2])
         d.label = Misc.identity(d.label, d.get_label())
 
-        self.ax.int_cnt += 1 if d.label else 0
+        self.ax.int_all.append(d)
         self.ax.int_tick = Misc.identity(self.ax.int_tick, d)
 
         if Misc.valid(d.line):
@@ -136,7 +139,7 @@ class Draw(object):
         self.ax = self.axs[0].twinx()
         self.axs.append(self.ax)
         # hack
-        self.ax.int_cnt  = 0
+        self.ax.int_all  = []
         self.ax.int_tick = None
         # not working?
         self.ax.__dict__['_get_lines'].set_prop_cycle(self.axs[0].__dict__['_get_lines'].prop_cycler)
@@ -198,7 +201,7 @@ class Draw(object):
             if d.xticks:
                 ax.set_xticks(np.array(d.xticks))
             if d.xticklabels:
-                ax.set_xticklabels(np.array(d.xlabels))
+                ax.set_xticklabels(np.array(d.xticklabels))
             if d.format == '2sf':
                 # magic: draw lines before setting xticks
                 xl = self.draw_cat(*d.x)
@@ -206,12 +209,10 @@ class Draw(object):
                 ax.set_xticklabels(xl,
                                    fontsize = d.xtick_font,
                                    rotation = d.xtick_rot)
-            if ax.int_cnt > 1:
-                row = Misc.identity(d.legend_row, ax.int_cnt)
-                col = int(ax.int_cnt / row + 0.499)
 
+            if (leg := len(list(filter(lambda x: x.label, ax.int_all)))) > 1:
                 ax.legend(loc            = loc(d.legend_loc),
-                          ncol           = col,
+                          ncol           = round(leg / Misc.identity(d.legend_row, leg)),
                           fontsize       = d.legend_font,
                           bbox_to_anchor = d.legend_bbox,
                           bbox_transform = self.fig.transFigure)
