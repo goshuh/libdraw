@@ -19,8 +19,9 @@ def init() -> None:
 
     # global
     pl.rcParams['figure.figsize' ] = (10, 6)
+    pl.rcParams['font.family'    ] = 'Cantarell'
     pl.rcParams['font.size'      ] =  18
-    pl.rcParams['axes.prop_cycle'] =  pl.cycler(color=rainbow)
+    pl.rcParams['axes.prop_cycle'] =  pl.cycler(color = rainbow)
 
     # print all the data
     pd.set_option('display.max_rows',     None)

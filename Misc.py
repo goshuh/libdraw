@@ -54,6 +54,9 @@ class Wrap(object):
     def __getitem__(self, k: Any) -> Wrap:
         return Wrap(self.data[k], **self.__dict__)
 
+    def show(self):
+        print(self.data.df)
+
     def copy(self, w: Wrap) -> Wrap:
         for k, v in w.__dict__.items():
             if k not in self.__dict__:

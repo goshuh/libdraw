@@ -1,10 +1,12 @@
 from __future__ import annotations
-from   typing   import Any, Union
+from   typing   import Any, Callable, Union
 
 import numpy                 as np
 import matplotlib.pyplot     as pl
 import matplotlib.lines      as ml
 import matplotlib.transforms as mt
+import matplotlib.figure     as mf
+import matplotlib.axes       as ma
 
 from . import Misc
 
@@ -155,7 +157,7 @@ class Draw(object):
             getattr(self, f'draw_{d.format}')(i, dn, d)
         return self
 
-    def post(self, fc: Any) -> Draw:
+    def post(self, fc: Callable[[mf.Figure, ma.Axes], Any]) -> Draw:
         fc(self.fig, self.ax)
         return self
 
@@ -192,23 +194,28 @@ class Draw(object):
                 ax.set_yscale('log')
                 if Misc.valid(d.ylog_real):
                     ax.yaxis.set_majot_formatter(fmt)
-            if d.xmin or d.xmax:
+            if Misc.valid(d.xmin) or Misc.valid(d.xmax):
                 ax.set_xlim(xmin = d.xmin,
                             xmax = d.xmax)
-            if d.ymin or d.ymax:
+            if Misc.valid(d.ymin) or Misc.valid(d.ymax):
                 ax.set_ylim(ymin = d.ymin,
                             ymax = d.ymax)
-            if d.xticks:
-                ax.set_xticks(np.array(d.xticks))
-            if d.xticklabels:
-                ax.set_xticklabels(np.array(d.xticklabels))
-            if d.format == '2sf':
+
+            if d.format == '2sf' and not Misc.identity(d.xticks_auto, False):
                 # magic: draw lines before setting xticks
                 xl = self.draw_cat(*d.x)
                 ax.set_xticks     (np.arange(len(d.x)))
                 ax.set_xticklabels(xl,
                                    fontsize = d.xtick_font,
                                    rotation = d.xtick_rot)
+            else:
+                if d.xticks:
+                    ax.set_xticks([], minor = True)
+                    ax.set_xticks(np.array(d.xticks))
+                    if d.format == '2ff':
+                        ax.set_xticklabels(list(map(str, d.xticks)))
+                if d.xticklabels:
+                    ax.set_xticklabels(np.array(d.xticklabels))
 
             if (leg := len(list(filter(lambda x: x.label, ax.int_all)))) > 1:
                 ax.legend(loc            = loc(d.legend_loc),

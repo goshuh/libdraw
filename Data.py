@@ -10,7 +10,7 @@ from . import Misc
 __all__ = ['Data', 'fmt_float']
 
 
-def fmt_float(_: int, cs: str):
+def fmt_float(_: int, cs: str) -> list[float]:
     return list(map(float, cs.split()))
 
 
