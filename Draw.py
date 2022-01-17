@@ -229,6 +229,6 @@ class Draw(object):
         if fn:
             pl.savefig(fn,
                        bbox_inches = 'tight',
-                       transparent =  True)
+                       transparent =  Misc.valid(kw.get('transparent', None)))
 
         pl.close()

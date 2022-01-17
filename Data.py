@@ -106,9 +106,9 @@ class Data(object):
             (fc := kw.get('func', None))):
             with open(fn) as fd:
                 for i, cs in enumerate(fd):
-                    self.data.extend(fc(i, cs))
+                    self.data.append(fc(i, cs))
         else:
-            self.data.extend(Misc.flatten(ds))
+            self.data.append(list(Misc.flatten(ds)))
         return self
 
     def raw_data(self, *ds: list[Any]) -> Data:
@@ -146,6 +146,16 @@ class Data(object):
         return self.wrap(pd.read_pickle(fn, **kw))
 
     def done(self, **kw: Any) -> Misc.Wrap:
+        if Misc.valid(kw.get('transpose', None)):
+            self.data = [i for sub in zip(*self.data) for i in sub]
+        else:
+            self.data = [i for sub in      self.data  for i in sub]
+
+        if not self.cols:
+            self.add_cols(auto = True)
+        if not self.rows:
+            self.add_rows(auto = True)
+
         if self.df is None:
             self.rlut = Data.Lut(self.rows)
             self.clut = Data.Lut(self.cols)
