@@ -216,6 +216,7 @@ class Draw(object):
             if (leg := len(list(filter(lambda x: x.label, ax.int_all)))) > 1:
                 ax.legend(loc            = loc(d.legend_loc),
                           ncol           = round(leg / Misc.identity(d.legend_row, leg)),
+                          frameon        = False,
                           fontsize       = d.legend_font,
                           bbox_to_anchor = d.legend_bbox,
                           bbox_transform = self.fig.transFigure)
