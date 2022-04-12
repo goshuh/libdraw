@@ -77,10 +77,6 @@ class Draw(object):
                                   label     = d.label,
                                   color     = d.color,
                                   linewidth = d.wid)
-        if Misc.valid(d.mark):
-            d.plot = self.ax.plot(d.x, d.y, Misc.identity(d.style, '') + 'o',
-                                  label     = d.label,
-                                  color     = d.color)
 
     def draw_cat(self, *ds: Any) -> Union[np.ndarray, list]:
         if not ds or len(ds[0]) == 1:
