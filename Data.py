@@ -1,11 +1,8 @@
 from __future__ import annotations
-from   typing   import Any, Union
+from   typing   import Any, Iterator, Union
 
 import numpy  as np
 import pandas as pd
-
-from .Int  import *
-from .Wrap import *
 
 
 __all__ = ['Data']
@@ -13,21 +10,38 @@ __all__ = ['Data']
 
 class Data(object):
 
+    @staticmethod
+    def flat(*ds: Any) -> Iterator[Any]:
+        for d in ds:
+            if isinstance(d, (list, tuple, np.ndarray, pd.Index)):
+                yield from Data.flat(*d)
+            else:
+                yield d
+
+    @staticmethod
+    def read(_: int, cs: str) -> list[float]:
+        def cov(s: str) -> float:
+            try:
+                return float(s)
+            except Exception:
+                return float('nan')
+        return list(map(cov, cs.split()))
+
     class Lut(object):
 
-        def __init__(self, a: list[list[str]]):
+        def __init__(self, ss: list[list[str]]):
             rev = [1]
 
-            for n in reversed(list(map(len, a))):
+            for n in reversed(list(map(len, ss))):
                 rev.append(rev[-1] * n)
 
             self.tot = rev[-1]
-            self.arr = [(n, {s: i for i, s in enumerate(r)}) for r, n in zip(a, reversed(rev[:-1]))]
+            self.arr = [(n, {r: i for i, r in enumerate(s)}) for s, n in zip(ss, reversed(rev[:-1]))]
 
-        def __call__(self, key: tuple[Union[str, list[str]]]) -> list[int]:
+        def __call__(self, ks: tuple[Union[str, list[str]]]) -> list[int]:
             rev = [0]
 
-            for (n, d), k in reversed(list(zip(self.arr, key + ('', ) * len(self.arr)))):
+            for (n, d), k in reversed(list(zip(self.arr, ks + ('', ) * len(self.arr)))):
                 acc = []
                 for i in (d if not k else [k] if isinstance(k, str) else k):
                     o = n * d[i]
@@ -36,22 +50,27 @@ class Data(object):
 
             return rev
 
-    def __init__(self):
-        self.rows = []
-        self.cols = []
-        self.data = []
-        self.rlut = None
-        self.clut = None
-        self.df   = None
+    def __init__(self, **kw):
+        r = kw.get('rows')
+        c = kw.get('cols')
+
+        self._rows    = [list(r)] if r else []
+        self._cols    = [list(c)] if c else []
+        self._raw     = []
+        self._row_lut = None
+        self._col_lut = None
+        self._data    = None
+
+        self.data(**kw)
 
     def __getattr__(self, k: str) -> Any:
         if k == 'T':
-            if self.df is None:
+            if self._data is None:
                 raise AttributeError(k)
 
-            self.df              = self.df.T
-            self.rows, self.cols = self.cols, self.rows
-            self.rlut, self.clut = self.clut, self.rlut
+            self._data                   = self._data.T
+            self._rows,    self._cols    = self._cols,    self._rows
+            self._row_lut, self._col_lut = self._col_lut, self._row_lut
 
             return self
         else:
@@ -69,59 +88,76 @@ class Data(object):
             if recur:
                 raise KeyError(k)
             if isinstance(c, list):
-                return list(Misc.flatten(map(lambda x: loc(x, d, 1), c)))
+                return list(Data.flat(map(lambda x: loc(x, d, 1), c)))
             if isinstance(c, slice):
                 if c.start is None and c.stop is None:
                     return list(range(0,
                                       d.tot,
-                                      Misc.identity(c.step, 1)))
+                                      c.step if c.step else 1))
                 return list(range(loc(c.start, d, 1)[0],
                                   loc(c.stop,  d, 1)[0],
-                                      Misc.identity(c.step, 1)))
+                                      c.step if c.step else 1))
             raise KeyError(k)
 
         if isinstance(k, tuple):
-            return Data().wrap(self.df.iloc[loc(k[0], self.rlut), loc(k[1], self.clut)])
+            return Data().wrap(self._data.iloc[loc(k[0], self._row_lut), loc(k[1], self._col_lut)])
         else:
-            return Data().wrap(self.df.iloc[loc(k,    self.rlut)])
+            return Data().wrap(self._data.iloc[loc(k,    self._row_lut)])
 
-    def add_rows(self, *rs: str, **kw: Any) -> Data:
-        if kw.get('auto', None):
-            self.rows.append(list(map(str, range(len(list(Misc.flatten(self.data))) // int(np.prod(list(map(len, self.cols))))))))
+    def rows(self, *rs: str, **kw: Any) -> Data:
+        if kw.get('auto'):
+            self._rows.append(list(map(str, range(len(self._raw) // int(np.prod(list(map(len, self._cols))))))))
         else:
-            self.rows.append(list(Misc.flatten(rs)))
+            self._rows.append(list(Data.flat(rs)))
 
         return self
 
-    def add_cols(self, *cs: str, **kw: Any) -> Data:
-        if kw.get('auto', None):
-            self.cols.append(list(map(str, range(len(list(Misc.flatten(self.data))) // int(np.prod(list(map(len, self.rows))))))))
+    def cols(self, *cs: str, **kw: Any) -> Data:
+        if kw.get('auto'):
+            self._cols.append(list(map(str, range(len(self._raw) // int(np.prod(list(map(len, self._rows))))))))
         else:
-            self.cols.append(list(Misc.flatten(cs)))
+            self._cols.append(list(Data.flat(cs)))
 
         return self
 
-    def add_data(self, *ds: Union[Any, list[Any]], **kw: Any) -> Data:
-        if ((fn := kw.get('file', None)) and
-            (fc := kw.get('func', None))):
+    def data(self, *ds: Union[Any, list[Any]], **kw: Any) -> Data:
+        if fn := kw.get('file'):
             with open(fn) as fd:
+                fc = kw.get('func', Data.read)
                 for i, cs in enumerate(fd):
-                    self.data.append(fc(i, cs))
-        else:
-            self.data.append(list(Misc.flatten(ds)))
+                    self._raw.extend(fc(i, cs))
+        elif ds:
+            self._raw.extend(list(Data.flat(ds)))
 
         return self
 
-    def raw_data(self, *ds: list[Any]) -> Data:
-        if not ds:
-            return self
+    def done(self) -> Data:
+        if not self._rows and not self._cols:
+            raise ValueError(self)
 
-        return self.wrap(pd.DataFrame(np.array(ds),
-                                      index   = pd.MultiIndex.from_product([list(map(str, range(len(ds   ))))]),
-                                      columns = pd.MultiIndex.from_product([list(map(str, range(len(ds[0]))))])))
+        if not self._cols:
+            self.cols(auto = True)
+        if not self._rows:
+            self.rows(auto = True)
+        if not self._data:
+            self._row_lut = Data.Lut(self._rows)
+            self._col_lut = Data.Lut(self._cols)
+            self._data    = pd.DataFrame(np.array(self._raw).reshape((self._row_lut.tot,
+                                                                      self._col_lut.tot)),
+                                         index   = pd.MultiIndex.from_product(self._rows),
+                                         columns = pd.MultiIndex.from_product(self._cols))
 
-    def wrap(self, df: pd.DataFrame):
-        def rex(mi: pd.Index) -> list[list[str]]:
+        return self
+
+    def load(self, fn: str, **kw: Any) -> Data:
+        return self.wrap(pd.read_pickle(fn, **kw))
+
+    def save(self, fn: str) -> Data:
+        self._data.to_pickle(fn)
+        return self
+
+    def wrap(self, df: pd.DataFrame) -> Data:
+        def rev(mi: pd.Index) -> list[list[str]]:
             raw = list(zip(*[i for i in mi]))
             ret = [[]          for _ in range(len(raw))]
 
@@ -134,47 +170,28 @@ class Data(object):
 
             return ret
 
-        self.df   = df
-        self.rows = rex(self.df.index)
-        self.cols = rex(self.df.columns)
-        self.rlut = Data.Lut(self.rows)
-        self.clut = Data.Lut(self.cols)
+        self._data    = df
+        self._rows    = rev(self._data.index)
+        self._cols    = rev(self._data.columns)
+        self._row_lut = Data.Lut(self._rows)
+        self._col_lut = Data.Lut(self._cols)
 
         return self
 
-    def save(self, fn: str) -> Data:
-        self.df.to_pickle(fn)
-        return self
+    def unwrap(self) -> pd.DataFrame:
+        def one(mi: pd.Index) -> list[str]:
+            return [i[0] for i in mi]
 
-    def load(self, fn: str, **kw: Any) -> Data:
-        return self.wrap(pd.read_pickle(fn, **kw))
+        if self._data is None:
+            self.done()
 
-    def done(self, **kw: Any) -> Wrap:
-        if Misc.valid(kw.get('transpose', None)):
-            self.data = [i for sub in zip(*self.data) for i in sub]
-        else:
-            self.data = [i for sub in      self.data  for i in sub]
+        data       = self._data
+        self._data = None
 
-        if not self.cols:
-            self.add_cols(auto = True)
-        if not self.rows:
-            self.add_rows(auto = True)
+        # TODO
+        if data.index  .nlevels == 1:
+            data.index   = pd.Index(one(data.index))
+        if data.columns.nlevels == 1:
+            data.columns = pd.Index(one(data.columns))
 
-        if self.df is None:
-            self.rlut = Data.Lut(self.rows)
-            self.clut = Data.Lut(self.cols)
-            self.df   = pd.DataFrame(np.array(self.data).reshape((self.rlut.tot,
-                                                                  self.clut.tot)),
-                                     index   = pd.MultiIndex.from_product(self.rows),
-                                     columns = pd.MultiIndex.from_product(self.cols))
-
-        return Wrap(self, **kw)
-
-    def get_index(self) -> np.ndarray:
-        return self.df.index
-
-    def get_label(self, idx: int = 0) -> str:
-        return self.df.columns[idx]
-
-    def get_value(self) -> np.ndarray:
-        return self.df.values
+        return data
