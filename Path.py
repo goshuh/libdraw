@@ -1,8 +1,8 @@
 from __future__ import annotations
 from   typing   import Any
 
-from . import Data
-from . import Misc
+from .Data import *
+from .Wrap import *
 
 
 __all__ = ['Axis', 'Path']
@@ -55,9 +55,9 @@ class Path(object):
             self.d.append(x(a))
             self.d.append(y(b))
 
-    def done(self, **kw: Any) -> Misc.Wrap:
-        return (Data.Data()
-                    .add_cols(self.x.name, self.y.name)
-                    .add_data(self.d)
-                    .add_rows(auto = True)
-                    .done(**kw))
+    def done(self, **kw: Any) -> Wrap:
+        return (Data()
+               .add_cols(self.x.name, self.y.name)
+               .add_data(self.d)
+               .add_rows(auto = True)
+               .done(**kw))

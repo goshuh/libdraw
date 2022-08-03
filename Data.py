@@ -1,17 +1,14 @@
 from __future__ import annotations
-from   typing   import Any, Iterable, Union
+from   typing   import Any, Union
 
 import numpy  as np
 import pandas as pd
 
-from . import Misc
+from .Int  import *
+from .Wrap import *
 
 
-__all__ = ['Data', 'fmt_float']
-
-
-def fmt_float(_: int, cs: str) -> list[float]:
-    return list(map(float, cs.split()))
+__all__ = ['Data']
 
 
 class Data(object):
@@ -20,6 +17,7 @@ class Data(object):
 
         def __init__(self, a: list[list[str]]):
             rev = [1]
+
             for n in reversed(list(map(len, a))):
                 rev.append(rev[-1] * n)
 
@@ -89,16 +87,18 @@ class Data(object):
 
     def add_rows(self, *rs: str, **kw: Any) -> Data:
         if kw.get('auto', None):
-            self.rows.append(list(map(str, range(len(self.data) // int(np.prod(list(map(len, self.cols))))))))
+            self.rows.append(list(map(str, range(len(list(Misc.flatten(self.data))) // int(np.prod(list(map(len, self.cols))))))))
         else:
-            self.rows.append(list(rs))
+            self.rows.append(list(Misc.flatten(rs)))
+
         return self
 
     def add_cols(self, *cs: str, **kw: Any) -> Data:
         if kw.get('auto', None):
-            self.cols.append(list(map(str, range(len(self.data) // int(np.prod(list(map(len, self.rows))))))))
+            self.cols.append(list(map(str, range(len(list(Misc.flatten(self.data))) // int(np.prod(list(map(len, self.rows))))))))
         else:
-            self.cols.append(list(cs))
+            self.cols.append(list(Misc.flatten(cs)))
+
         return self
 
     def add_data(self, *ds: Union[Any, list[Any]], **kw: Any) -> Data:
@@ -109,11 +109,13 @@ class Data(object):
                     self.data.append(fc(i, cs))
         else:
             self.data.append(list(Misc.flatten(ds)))
+
         return self
 
     def raw_data(self, *ds: list[Any]) -> Data:
         if not ds:
             return self
+
         return self.wrap(pd.DataFrame(np.array(ds),
                                       index   = pd.MultiIndex.from_product([list(map(str, range(len(ds   ))))]),
                                       columns = pd.MultiIndex.from_product([list(map(str, range(len(ds[0]))))])))
@@ -129,6 +131,7 @@ class Data(object):
                     if r not in dic:
                         dic.add(r)
                         prt.append(r)
+
             return ret
 
         self.df   = df
@@ -136,6 +139,7 @@ class Data(object):
         self.cols = rex(self.df.columns)
         self.rlut = Data.Lut(self.rows)
         self.clut = Data.Lut(self.cols)
+
         return self
 
     def save(self, fn: str) -> Data:
@@ -145,7 +149,7 @@ class Data(object):
     def load(self, fn: str, **kw: Any) -> Data:
         return self.wrap(pd.read_pickle(fn, **kw))
 
-    def done(self, **kw: Any) -> Misc.Wrap:
+    def done(self, **kw: Any) -> Wrap:
         if Misc.valid(kw.get('transpose', None)):
             self.data = [i for sub in zip(*self.data) for i in sub]
         else:
@@ -164,16 +168,13 @@ class Data(object):
                                      index   = pd.MultiIndex.from_product(self.rows),
                                      columns = pd.MultiIndex.from_product(self.cols))
 
-        return Misc.Wrap(self, **kw)
+        return Wrap(self, **kw)
 
-    @property
-    def index(self) -> np.ndarray:
+    def get_index(self) -> np.ndarray:
         return self.df.index
 
-    @property
-    def label(self) -> str:
-        return self.df.columns[0]
+    def get_label(self, idx: int = 0) -> str:
+        return self.df.columns[idx]
 
-    @property
-    def value(self) -> np.ndarray:
+    def get_value(self) -> np.ndarray:
         return self.df.values

@@ -1,34 +1,18 @@
 from __future__ import annotations
-from   typing   import Any, Iterator, Optional, Union
+from   typing   import Any, Optional
 
 import numpy as np
-import pandas as pd
 
-from . import Data
+from .Int  import *
+from .Data import *
 
 
 __all__ = ['Wrap']
 
 
-def valid(i: Optional[Any]) -> bool:
-    return i is not None
-
-
-def identity(i: Optional[Any], d: Any = None) -> Any:
-    return i if i is not None else d
-
-
-def flatten(*ds: Union[Any, Iterator[Any]]) -> Iterator[Any]:
-    for d in ds:
-        if isinstance(d, (list, tuple, map, pd.Index, np.ndarray)):
-            yield from flatten(*d)
-        else:
-            yield d
-
-
 class Wrap(object):
 
-    def __init__(self, d: Data.Data, **kw: Any):
+    def __init__(self, d: Data, **kw: Any):
         self.__dict__.update(kw)
         self.__dict__['data'] = d
 
@@ -72,13 +56,13 @@ class Wrap(object):
         return self
 
     def get_index(self) -> np.ndarray:
-        return np.array(list(self.data.index))
+        return np.array(list(self.data.get_index()))
 
-    def get_label(self) -> str:
-        return ', '.join(self.data.label)
+    def get_label(self, idx: int = 0) -> str:
+        return ', '.join(self.data.get_label(idx))
 
     def get_value(self) -> np.ndarray:
-        return np.array(list(flatten(self.data.value)))
+        return np.array(list(Misc.flatten(self.data.get_value())))
 
     def get_color(self) -> str:
         return self.plot[0].get_color()

@@ -8,7 +8,8 @@ import matplotlib.transforms as mt
 import matplotlib.figure     as mf
 import matplotlib.axes       as ma
 
-from . import Misc
+from .Int  import *
+from .Wrap import *
 
 
 __all__ = ['Draw']
@@ -18,16 +19,16 @@ class Draw(object):
 
     def __init__(self, *a: Any, **kw: Any):
         self.fig, self.ax = pl.subplots(*a, **kw)
-        self.axs  = [self.ax]
+        self.axs = [self.ax]
         # hack
         self.ax.int_all  = []
         self.ax.int_tick = None
 
-    def add(self, misc: ml.Artist):
+    def add(self, misc: ml.Artist) -> None:
         misc.set_in_layout(True)
         self.ax.add_artist(misc)
 
-    def draw_2sf(self, i: int, n: int, d: Misc.Wrap) -> None:
+    def draw_2sf(self, i: int, n: int, d: Wrap) -> None:
         d.x     = d.get_index()
         d.y     = d.get_value()
         d.label = Misc.identity(d.label, d.get_label())
@@ -67,7 +68,7 @@ class Draw(object):
 
         d.x     = np.array(v[0::2])
         d.y     = np.array(v[1::2])
-        d.label = Misc.identity(d.label, d.get_label())
+        d.label = Misc.identity(d.label, d.get_label(1))
 
         self.ax.int_all.append(d)
         self.ax.int_tick = Misc.identity(self.ax.int_tick, d)
@@ -189,7 +190,7 @@ class Draw(object):
             if Misc.valid(d.ylog):
                 ax.set_yscale('log')
                 if Misc.valid(d.ylog_real):
-                    ax.yaxis.set_majot_formatter(fmt)
+                    ax.yaxis.set_major_formatter(fmt)
             if Misc.valid(d.xmin) or Misc.valid(d.xmax):
                 ax.set_xlim(xmin = d.xmin,
                             xmax = d.xmax)
