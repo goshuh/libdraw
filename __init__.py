@@ -9,8 +9,9 @@ def init():
     pp.rc_matplotlib['savefig.dpi'] = 72
 
     pp.rc['subplots.refwidth'] =  8
-    pp.rc['font.name'        ] = 'Cantarell'
+    pp.rc['font.name'        ] = 'Calibri'
     pp.rc['font.size'        ] =  24
+    pp.rc['image.cmap'       ] = 'gnuplot'
     pp.rc['legend.frameon'   ] =  False
 
 

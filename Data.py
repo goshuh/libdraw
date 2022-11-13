@@ -1,5 +1,5 @@
 from __future__ import annotations
-from   typing   import Any, Iterator, Union
+from   typing   import Any, Iterator, TextIO, Union
 
 import numpy  as np
 import pandas as pd
@@ -19,13 +19,14 @@ class Data(object):
                 yield d
 
     @staticmethod
-    def read(_: int, cs: str) -> list[float]:
+    def read(fd: TextIO) -> list[float]:
         def cov(s: str) -> float:
             try:
                 return float(s)
             except Exception:
                 return float('nan')
-        return list(map(cov, cs.split()))
+        for cs in fd:
+            yield list(map(cov, cs.split()))
 
     class Lut(object):
 
@@ -124,8 +125,8 @@ class Data(object):
         if fn := kw.get('file'):
             with open(fn) as fd:
                 fc = kw.get('func', Data.read)
-                for i, cs in enumerate(fd):
-                    self._raw.extend(fc(i, cs))
+                for cs in fc(fd):
+                    self._raw.extend(cs)
         elif ds:
             self._raw.extend(list(Data.flat(ds)))
 
