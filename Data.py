@@ -5,9 +5,6 @@ import numpy  as np
 import pandas as pd
 
 
-__all__ = ['Data']
-
-
 class Data(object):
 
     @staticmethod
@@ -26,6 +23,8 @@ class Data(object):
             except Exception:
                 return float('nan')
         for cs in fd:
+            if not cs or cs.startswith('#'):
+                continue
             yield list(map(cov, cs.split()))
 
     class Lut(object):
