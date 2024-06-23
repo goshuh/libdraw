@@ -19,9 +19,23 @@ def init():
         '#009E73',
         '#D55E00',
         '#CC79A7',
-        '#F5C710',
         '#F5C710'
     ]
+
+    markers = [
+        'o',
+        'v',
+        '^',
+        's',
+        'p',
+        'h',
+        'd'
+    ]
+
+    cycle = pp.Cycle(
+        c         = palette,
+        marker    = markers,
+        linewidth = 2)
 
     pd.set_option('display.max_columns',       None)
     pd.set_option('display.max_rows',          None)
@@ -32,15 +46,16 @@ def init():
     pp.rc_matplotlib['figure.max_open_warning'] = False
     pp.rc_matplotlib['savefig.dpi'            ] = 72
 
-    pp.rc['cmap'             ] = 'gnuplot'
-    pp.rc['axes.prop_cycle'  ] =  pp.Cycle(c = palette, lw = 2)
-    pp.rc['font.name'        ] = 'Calibri'
-    pp.rc['font.size'        ] =  16
-    pp.rc['grid'             ] =  False
-    pp.rc['gridminor'        ] =  False
-    pp.rc['legend.fontsize'  ] =  16
-    pp.rc['legend.frameon'   ] =  False
-    pp.rc['subplots.refwidth'] =  6
+    pp.rc['cmap'                ] = 'gnuplot'
+    pp.rc['axes.prop_cycle'     ] =  cycle
+    pp.rc['font.name'           ] = 'Calibri'
+    pp.rc['font.size'           ] =  20
+    pp.rc['grid'                ] =  False
+    pp.rc['gridminor'           ] =  False
+    pp.rc['legend.fontsize'     ] =  20
+    pp.rc['legend.frameon'      ] =  False
+    pp.rc['legend.columnspacing'] =  1.25
+    pp.rc['subplots.refwidth'   ] =  6
 
 
 init()
