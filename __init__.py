@@ -22,6 +22,14 @@ def init():
         '#F5C710'
     ]
 
+    # nebula colors
+    palette = [
+        '#000000',
+        '#307098',
+        '#832211',
+        '#b26925'
+    ]
+
     markers = [
         'o',
         'v',
@@ -48,13 +56,14 @@ def init():
 
     pp.rc['cmap'                ] = 'gnuplot'
     pp.rc['axes.prop_cycle'     ] =  cycle
-    pp.rc['font.name'           ] = 'Calibri'
+    pp.rc['font.name'           ] = 'Times New Roman'
     pp.rc['font.size'           ] =  20
     pp.rc['grid'                ] =  False
     pp.rc['gridminor'           ] =  False
+    pp.rc['lines.markersize'    ] =  8
     pp.rc['legend.fontsize'     ] =  20
     pp.rc['legend.frameon'      ] =  False
-    pp.rc['legend.columnspacing'] =  1.25
+    pp.rc['legend.columnspacing'] =  1
     pp.rc['subplots.refwidth'   ] =  6
 
 

@@ -7,7 +7,7 @@ import proplot as pp
 class Draw(object):
 
     def __init__(self, fn: str, **kw: Any):
-        f = {'refaspect': kw.pop('aspect', 2.4)}
+        f = {'refaspect': kw.pop('refaspect', 2.4)}
         a = {}
 
         for k, v in kw.items():
