@@ -58,6 +58,8 @@ def init():
     pp.rc['axes.prop_cycle'     ] =  cycle
     pp.rc['font.name'           ] = 'Times New Roman'
     pp.rc['font.size'           ] =  20
+    pp.rc['title.loc'           ] = 'uc'
+    pp.rc['title.size'          ] =  20
     pp.rc['grid'                ] =  False
     pp.rc['gridminor'           ] =  False
     pp.rc['lines.markersize'    ] =  8
