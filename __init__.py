@@ -41,7 +41,7 @@ def init():
     ]
 
     cycle = pp.Cycle(
-        c         = palette,
+        color     = palette,
         marker    = markers,
         linewidth = 2)
 
@@ -50,13 +50,14 @@ def init():
     pd.set_option('display.max_colwidth',      None)
     pd.set_option('display.expand_frame_repr', None)
 
-    pp.rc_matplotlib['figure.dpi'             ] = 72
-    pp.rc_matplotlib['figure.max_open_warning'] = False
-    pp.rc_matplotlib['savefig.dpi'            ] = 72
+    pp.rc_matplotlib['figure.dpi'             ] =  72
+    pp.rc_matplotlib['figure.max_open_warning'] =  False
+    pp.rc_matplotlib['savefig.dpi'            ] =  72
+    pp.rc_matplotlib['svg.fonttype'           ] = 'none'
 
     pp.rc['cmap'                ] = 'gnuplot'
     pp.rc['axes.prop_cycle'     ] =  cycle
-    pp.rc['font.name'           ] = 'Times New Roman'
+    pp.rc['font.name'           ] = 'Linux Libertine'
     pp.rc['font.size'           ] =  20
     pp.rc['title.loc'           ] = 'uc'
     pp.rc['title.size'          ] =  20
