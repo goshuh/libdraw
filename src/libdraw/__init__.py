@@ -1,3 +1,5 @@
+import os
+
 from .Data import Data
 from .Draw import Draw
 
@@ -54,6 +56,16 @@ def init():
     up.rc_matplotlib['figure.max_open_warning'] =  False
     up.rc_matplotlib['savefig.dpi'            ] =  72
     up.rc_matplotlib['svg.fonttype'           ] = 'none'
+
+    # use the bundle font
+    fd = os.path.join(os.path.dirname(__file__), 'fonts')
+
+    up.register_fonts(os.path.join(fd, 'LinLibertine_RBIah.ttf',
+                      os.path.join(fd, 'LinLibertine_RBah.ttf',
+                      os.path.join(fd, 'LinLibertine_RIah.ttf',
+                      os.path.join(fd, 'LinLibertine_RZIah.ttf',
+                      os.path.join(fd, 'LinLibertine_RZah.ttf',
+                      os.path.join(fd, 'LinLibertine_Rah.ttf')
 
     up.rc['cmap'                ] = 'gnuplot'
     up.rc['axes.prop_cycle'     ] =  cycle
