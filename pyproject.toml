@@ -8,5 +8,5 @@ dependencies = [
     "ultraplot>=1.60.2",
 ]
 
-[tool.setuptools]
-py-modules = ["Draw", "Data"]
+[tool.setuptools.packages.find]
+where = ["src"]
