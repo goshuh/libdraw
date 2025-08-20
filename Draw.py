@@ -1,7 +1,7 @@
 from __future__ import annotations
 from   typing   import Any
 
-import proplot as pp
+import ultraplot as up
 
 
 class Draw(object):
@@ -18,7 +18,7 @@ class Draw(object):
 
         self.fn  = fn
         self.kw  = a
-        self.fig = pp.figure(**f)
+        self.fig = up.figure(**f)
 
     def __enter__(self):
         if (self.kw.get('array')        or
