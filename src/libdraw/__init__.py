@@ -60,12 +60,12 @@ def init():
     # use the bundle font
     fd = os.path.join(os.path.dirname(__file__), 'fonts')
 
-    up.register_fonts(os.path.join(fd, 'LinLibertine_RBIah.ttf',
-                      os.path.join(fd, 'LinLibertine_RBah.ttf',
-                      os.path.join(fd, 'LinLibertine_RIah.ttf',
-                      os.path.join(fd, 'LinLibertine_RZIah.ttf',
-                      os.path.join(fd, 'LinLibertine_RZah.ttf',
-                      os.path.join(fd, 'LinLibertine_Rah.ttf')
+    up.register_fonts(os.path.join(fd, 'LinLibertine_RBIah.ttf'),
+                      os.path.join(fd, 'LinLibertine_RBah.ttf' ),
+                      os.path.join(fd, 'LinLibertine_RIah.ttf' ),
+                      os.path.join(fd, 'LinLibertine_RZIah.ttf'),
+                      os.path.join(fd, 'LinLibertine_RZah.ttf' ),
+                      os.path.join(fd, 'LinLibertine_Rah.ttf'  ))
 
     up.rc['cmap'                ] = 'gnuplot'
     up.rc['axes.prop_cycle'     ] =  cycle
