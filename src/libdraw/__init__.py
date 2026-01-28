@@ -3,7 +3,7 @@ from .Draw import Draw
 
 
 # nebula colors
-_palette_nebula = [
+palette_nebula = [
     '#000000',
     '#307098',
     '#832211',
@@ -11,7 +11,7 @@ _palette_nebula = [
 ]
 
 # https://github.com/easystats/see/blob/HEAD/R/scale_color_okabeito.R
-_palette_okabeito = [
+palette_okabeito = [
     '#E69F00',
     '#009E73',
     '#0072B2',
@@ -21,7 +21,7 @@ _palette_okabeito = [
 ]
 
 # https://github.com/Gnuplotting/gnuplot-palettes
-_palette_rdylbu = [
+palette_rdylbu = [
     '#4575b4',
     '#74add1',
     '#abd9e9',
@@ -32,7 +32,7 @@ _palette_rdylbu = [
     '#d73027'
 ]
 
-_markers = [
+markers = [
     'o',
     'v',
     '^',
@@ -46,8 +46,8 @@ _markers = [
 def set_cycle(ax = None, **kw):
     import ultraplot as up
 
-    c = up.Cycle(color     = kw.get('color',  _palette_nebula),
-                 marker    = kw.get('marker', _markers),
+    c = up.Cycle(color     = kw.get('color',  palette_nebula),
+                 marker    = kw.get('marker', markers),
                  linewidth = 2)
 
     if ax:
