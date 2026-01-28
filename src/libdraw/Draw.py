@@ -5,7 +5,6 @@ import ultraplot as up
 
 
 class Draw(object):
-
     def __init__(self, fn: str, **kw: Any):
         f = {'refaspect': kw.pop('refaspect', 2.4)}
         a = {}

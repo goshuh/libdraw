@@ -1,51 +1,65 @@
-import os
-
 from .Data import Data
 from .Draw import Draw
 
 
-def init():
-    import cycler
-    import pandas    as pd
+# nebula colors
+_palette_nebula = [
+    '#000000',
+    '#307098',
+    '#832211',
+    '#b26925'
+]
+
+# https://github.com/easystats/see/blob/HEAD/R/scale_color_okabeito.R
+_palette_okabeito = [
+    '#E69F00',
+    '#009E73',
+    '#0072B2',
+    '#D55E00',
+    '#CC79A7',
+    '#F5C710'
+]
+
+# https://github.com/Gnuplotting/gnuplot-palettes
+_palette_rdylbu = [
+    '#4575b4',
+    '#74add1',
+    '#abd9e9',
+#   '#e0f3f8',
+#   '#fee090',
+    '#fdae61',
+    '#f46d43',
+    '#d73027'
+]
+
+_markers = [
+    'o',
+    'v',
+    '^',
+    's',
+    'p',
+    'h',
+    'd'
+]
+
+
+def set_cycle(ax = None, **kw):
     import ultraplot as up
 
-    # https://github.com/easystats/see/blob/HEAD/R/scale_color_okabeito.R
-    palette = [
-        '#E69F00',
-        '#009E73',
-        '#0072B2',
-        '#D55E00',
-        '#CC79A7',
-        '#000000',
-        '#56B4E9',
-        '#009E73',
-        '#D55E00',
-        '#CC79A7',
-        '#F5C710'
-    ]
+    c = up.Cycle(color     = kw.get('color',  _palette_nebula),
+                 marker    = kw.get('marker', _markers),
+                 linewidth = 2)
 
-    # nebula colors
-    palette = [
-        '#000000',
-        '#307098',
-        '#832211',
-        '#b26925'
-    ]
+    if ax:
+        ax.set_prop_cycle(c)
+    else:
+        up.rc['axes.prop_cycle'] = c
 
-    markers = [
-        'o',
-        'v',
-        '^',
-        's',
-        'p',
-        'h',
-        'd'
-    ]
 
-    cycle = up.Cycle(
-        color     = palette,
-        marker    = markers,
-        linewidth = 2)
+def _init():
+    import os
+    import pandas    as pd
+    import ultraplot as up
 
     pd.set_option('display.max_columns',       None)
     pd.set_option('display.max_rows',          None)
@@ -68,7 +82,6 @@ def init():
                       os.path.join(fd, 'LinLibertine_Rah.ttf'  ))
 
     up.rc['cmap'                ] = 'gnuplot'
-    up.rc['axes.prop_cycle'     ] =  cycle
     up.rc['font.name'           ] = 'Linux Libertine'
     up.rc['font.size'           ] =  20
     up.rc['title.loc'           ] = 'uc'
@@ -81,5 +94,7 @@ def init():
     up.rc['legend.columnspacing'] =  1
     up.rc['subplots.refwidth'   ] =  6
 
+    set_cycle()
 
-init()
+
+_init()

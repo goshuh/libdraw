@@ -6,7 +6,6 @@ import pandas as pd
 
 
 class Data(object):
-
     @staticmethod
     def flat(*ds: Any) -> Iterator[Any]:
         for d in ds:
@@ -28,7 +27,6 @@ class Data(object):
             yield list(map(cov, cs.split()))
 
     class Lut(object):
-
         def __init__(self, ss: list[list[str]]):
             rev = [1]
 
@@ -128,6 +126,9 @@ class Data(object):
                     self._raw.extend(cs)
         elif ds:
             self._raw.extend(list(Data.flat(ds)))
+
+        if mf := kw.get('mult'):
+            self._raw[:] = map(lambda x: x * mf, self._raw)
 
         return self
 
