@@ -10,6 +10,14 @@ palette_nebula = [
     '#b26925'
 ]
 
+palette_nebula_more = [
+    '#307098',
+    '#365937',
+    '#b26925',
+    '#832211',
+    '#000000'
+]
+
 # https://github.com/easystats/see/blob/HEAD/R/scale_color_okabeito.R
 palette_okabeito = [
     '#E69F00',
@@ -42,6 +50,14 @@ markers = [
     'd'
 ]
 
+hatches = [
+    '//',
+   r'\\',
+    '++',
+    'oo',
+    '..'
+]
+
 
 def set_cycle(ax = None, **kw):
     import ultraplot as up
@@ -54,6 +70,22 @@ def set_cycle(ax = None, **kw):
         ax.set_prop_cycle(c)
     else:
         up.rc['axes.prop_cycle'] = c
+
+
+def scale_v(c, f):
+    import matplotlib.colors as mc
+
+    hsv = mc.rgb_to_hsv(mc.to_rgb(c))
+    hsv[2] *= f
+    return mc.hsv_to_rgb(hsv)
+
+
+def scale_b(c, f):
+    import numpy             as np
+    import matplotlib.colors as mc
+
+    rgb = np.array(mc.to_rgb(c))
+    return rgb + ([1, 1, 1] - rgb) * f
 
 
 def _init():
